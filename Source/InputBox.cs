@@ -1,20 +1,22 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace NBody {
-
+namespace NBody
+{
     /// <summary>
     /// Represents a dialog box that prompts for text input. 
     /// </summary>
-    partial class InputBox : Form {
-
+    partial class InputBox : Form
+	{
         /// <summary>
         /// Initializes the InputBox. 
         /// </summary>
-        public InputBox() {
+        public InputBox() 
+		{
             InitializeComponent();
             Button button = new Button();
-            button.Click += (sender, e) => {
+            button.Click += (sender, e) =>
+			{
                 Close();
             };
             CancelButton = button;
@@ -25,7 +27,8 @@ namespace NBody {
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
         /// <param name="e">The event.</param>
-        void ButtonClick(Object sender, EventArgs e) {
+        void ButtonClick(Object sender, EventArgs e) 
+		{
             DialogResult = DialogResult.OK;
             Close();
         }
@@ -35,9 +38,10 @@ namespace NBody {
         /// input field. 
         /// </summary>
         /// <param name="message">The message to display.</param>
-        /// <param name="defaultInputText">The default text in the the input field.</param>
+        /// <param name="defaultInputText">The default text in the input field.</param>
         /// <returns>The exit flag of the InputBox.</returns>
-        public DialogResult ShowDialog(String message, String defaultInputText) {
+        public DialogResult ShowDialog(String message, String defaultInputText)
+		{
             promptLabel.Text = message;
             responseBox.Text = defaultInputText;
             CenterToScreen();
@@ -45,16 +49,20 @@ namespace NBody {
         }
 
         /// <summary>
-        /// Initializes and displays a new InputBox witih the given message and 
+        /// Initializes and displays a new InputBox with the given message and 
         /// default text in the input field. 
         /// </summary>
         /// <param name="message">The message to display.</param>
-        /// <param name="defaultInputText">The default text in the the input field.</param>
+        /// <param name="defaultInputText">The default text in the input field.</param>
         /// <returns>The value in the input field if the OK button is pressed, otherwise the default input text.</returns>
-        public static String Show(String message, String defaultInputText = "") {
-            using (InputBox box = new InputBox()) {
-                if (box.ShowDialog(message, defaultInputText) == DialogResult.OK)
-                    return box.responseBox.Text;
+        public static String Show(String message, String defaultInputText = "")
+		{
+            using (InputBox box = new InputBox()) 
+			{
+				if (box.ShowDialog(message, defaultInputText) == DialogResult.OK)
+				{
+					return box.responseBox.Text;
+				}
                 return defaultInputText;
             }
         }
