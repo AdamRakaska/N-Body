@@ -317,7 +317,8 @@ namespace NBody
                         break;
 
                     // Generate orbital system. 
-                    case SystemType.OrbitalSystem: {
+                    case SystemType.OrbitalSystem:
+						{
                             _bodies[0] = new Body(1e10);
 
                             for (int i = 1; i < _bodies.Length; i++) 
