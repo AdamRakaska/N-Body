@@ -5,18 +5,18 @@ using System.Threading;
 using Lattice;
 using Threading;
 
-namespace NBody {
-
+namespace NBody
+{
     /// <summary>
     /// Specifies the system type to generate. 
     /// </summary>
-    enum SystemType { None, SlowParticles, FastParticles, MassiveBody, OrbitalSystem, BinarySystem, PlanetarySystem, DistributionTest };
+    public enum SystemType { None, SlowParticles, FastParticles, MassiveBody, OrbitalSystem, BinarySystem, PlanetarySystem, DistributionTest };
 
     /// <summary>
     /// Represents the world of the simulation. 
     /// </summary>
-    class World {
-
+    public class World
+	{
         /// <summary>
         /// The number of milliseconds between simulation frames. 
         /// </summary>
@@ -32,26 +32,7 @@ namespace NBody {
         /// </summary>
         private const double FpsMax = 999.9;
 
-        /// <summary>
-        /// The camera field of view. 
-        /// </summary>
-        private const double CameraFOV = 9e8;
-
-        /// <summary>
-        /// The default value for the camera's position on the z-axis. 
-        /// </summary>
-        private const double CameraZDefault = 1e6;
-
-        /// <summary>
-        /// The acceleration constant for camera scrolling. 
-        /// </summary>
-        private const double CameraZAcceleration = -2e-4;
-
-        /// <summary>
-        /// The easing factor for camera scrolling. 
-        /// </summary>
-        private const double CameraZEasing = 0.94;
-
+       
         /// <summary>
         /// The gravitational constant. 
         /// </summary>
@@ -65,9 +46,12 @@ namespace NBody {
         /// <summary>
         /// The world instance. 
         /// </summary>
-        public static World Instance {
-            get {
-                if (_instance == null) {
+        public static World Instance 
+		{
+            get
+			{
+                if (_instance == null)
+				{
                     _instance = new World();
                 }
                 return _instance;
@@ -78,14 +62,20 @@ namespace NBody {
         /// <summary>
         /// The number of bodies allocated in the simulation. 
         /// </summary>
-        public int BodyAllocationCount {
-            get {
+        public int BodyAllocationCount 
+		{
+            get
+			{
                 return _bodies.Length;
             }
-            set {
-                if (_bodies.Length != value) {
-                    lock (_bodyLock)
-                        _bodies = new Body[value];
+            set
+			{
+                if (_bodies.Length != value)
+				{
+					lock (_bodyLock)
+					{
+						_bodies = new Body[value];
+					}
                     Frames = 0;
                 }
             }
@@ -94,25 +84,24 @@ namespace NBody {
         /// <summary>
         /// The number of bodies that exist in the simulation. 
         /// </summary>
-        public int BodyCount {
-            get {
-                return _tree == null ? 0 : _tree.BodyCount;
-            }
+        public int BodyCount
+		{
+            get { return _tree == null ? 0 : _tree.BodyCount; }
         }
 
         /// <summary>
         /// The total mass of the bodies that exist in the simulation. 
         /// </summary>
-        public double TotalMass {
-            get {
-                return _tree == null ? 0 : _tree.Mass;
-            }
+        public double TotalMass
+		{
+            get { return _tree == null ? 0 : _tree.Mass; }
         }
 
         /// <summary>
         /// The number of frames elapsed in the simulation. 
         /// </summary>
-        public long Frames {
+        public long Frames
+		{
             get;
             private set;
         }
@@ -120,7 +109,8 @@ namespace NBody {
         /// <summary>
         /// Determines whether the simulation is active or paused. 
         /// </summary>
-        public Boolean Active {
+        public Boolean Active 
+		{
             get;
             set;
         }
@@ -128,7 +118,8 @@ namespace NBody {
         /// <summary>
         /// The simulation FPS. 
         /// </summary>
-        public double Fps {
+        public double Fps 
+		{
             get;
             private set;
         }
@@ -136,7 +127,8 @@ namespace NBody {
         /// <summary>
         /// Determines whether to draw the tree structure for calculating forces. 
         /// </summary>
-        public Boolean DrawTree {
+        public Boolean DrawTree
+		{
             get;
             set;
         }
@@ -157,40 +149,29 @@ namespace NBody {
         private Octree _tree;
 
         /// <summary>
-        /// The Renderer instance for drawing 3D graphics. 
-        /// </summary>
-        private Renderer _renderer = new Renderer();
-
-        /// <summary>
         /// The stopwatch for the simulation FPS. 
         /// </summary>
         private Stopwatch _stopwatch = new Stopwatch();
 
-        /// <summary>
-        /// The camera's position on the z-axis. 
-        /// </summary>
-        private double _cameraZ = CameraZDefault;
-
-        /// <summary>
-        /// The camera's velocity along the z-axis. 
-        /// </summary>
-        private double _cameraZVelocity = 0;
+		public Camera Camera { get; private set; }
 
         /// <summary>
         /// Constructs the world and starts the simulation. 
         /// </summary>
-        private World() {
-
+        private World() 
+		{
             // Initialize default values. 
             Active = true;
             Frames = 0;
-            _renderer.Camera.Z = _cameraZ;
-            _renderer.FOV = CameraFOV;
+			Camera = new Camera();
 
             // Start simulation thread. 
-            new Thread(new ThreadStart(() => {
-                while (true)
-                    Simulate();
+            new Thread(new ThreadStart(() =>
+			{
+				while (true)
+				{
+					Simulate();
+				}
             })) {
                 IsBackground = true
             }.Start();
@@ -199,43 +180,54 @@ namespace NBody {
         /// <summary>
         /// Advances the simulation by one frame if it is active. 
         /// </summary>
-        private void Simulate() {
-            if (Active)
-                lock (_bodyLock) {
+        private void Simulate()
+		{
+			if (Active)
+			{
+				lock (_bodyLock)
+				{
 
-                    // Update the bodies and determine the required tree width. 
-                    double halfWidth = 0;
-                    foreach (Body body in _bodies)
-                        if (body != null) {
-                            body.Update();
-                            halfWidth = Math.Max(Math.Abs(body.Location.X), halfWidth);
-                            halfWidth = Math.Max(Math.Abs(body.Location.Y), halfWidth);
-                            halfWidth = Math.Max(Math.Abs(body.Location.Z), halfWidth);
-                        }
+					// Update the bodies and determine the required tree width. 
+					double halfWidth = 0;
+					foreach (Body body in _bodies)
+					{
+						if (body != null)
+						{
+							body.Update();
+							halfWidth = Math.Max(Math.Abs(body.Location.X), halfWidth);
+							halfWidth = Math.Max(Math.Abs(body.Location.Y), halfWidth);
+							halfWidth = Math.Max(Math.Abs(body.Location.Z), halfWidth);
+						}
+					}
 
-                    // Initialize the root tree and add the bodies. The root tree needs to be 
-                    // slightly larger than twice the determined half width. 
-                    _tree = new Octree(2.1 * halfWidth);
-                    foreach (Body body in _bodies)
-                        if (body != null)
-                            _tree.Add(body);
+					// Initialize the root tree and add the bodies. The root tree needs to be 
+					// slightly larger than twice the determined half width. 
+					_tree = new Octree(2.1 * halfWidth);
+					foreach (Body body in _bodies)
+					{
+						if (body != null)
+						{
+							_tree.Add(body);
+						}
+					}
 
-                    // Accelerate the bodies in parallel. 
-                    Parallel.ForEach(_bodies, body => {
-                        if (body != null)
-                            _tree.Accelerate(body);
-                    });
+					// Accelerate the bodies in parallel. 
+					Parallel.ForEach(_bodies, body =>
+					{
+						if (body != null)
+						{
+							_tree.Accelerate(body);
+						}
+					});
 
-                    // Update frame counter. 
-                    if (_tree.BodyCount > 0)
-                        Frames++;
-                }
+					// Update frame counter. 
+					if (_tree.BodyCount > 0)
+						Frames++;
+				}
+			}
 
             // Update the camera. 
-            _cameraZ += _cameraZVelocity * _cameraZ;
-            _cameraZ = Math.Max(1, _cameraZ);
-            _cameraZVelocity *= CameraZEasing;
-            _renderer.Camera.Z = _cameraZ;
+			Camera.Update();
 
             // Sleep for the necessary time. 
             int elapsed = (int)_stopwatch.ElapsedMilliseconds;
@@ -254,21 +246,25 @@ namespace NBody {
         /// Generates the specified gravitational system. 
         /// </summary>
         /// <param name="type">The system type to generate.</param>
-        public void Generate(SystemType type) {
-
+        public void Generate(SystemType type)
+		{
             // Reset frames elapsed. 
             Frames = 0;
 
-            lock (_bodyLock) {
-                switch (type) {
-
+            lock (_bodyLock)
+			{
+                switch (type)
+				{
                     // Clear bodies. 
-                    case SystemType.None:
-                        Array.Clear(_bodies, 0, _bodies.Length);
-                        break;
+					case SystemType.None:
+						{
+							Array.Clear(_bodies, 0, _bodies.Length);							
+						}
+						break;
 
                     // Generate slow particles. 
-                    case SystemType.SlowParticles: {
+                    case SystemType.SlowParticles:
+						{
                             for (int i = 0; i < _bodies.Length; i++) {
                                 double distance = PseudoRandom.Double(1e6);
                                 double angle    = PseudoRandom.Double(Math.PI * 2);
@@ -281,7 +277,8 @@ namespace NBody {
                         break;
 
                     // Generate fast particles. 
-                    case SystemType.FastParticles: {
+                    case SystemType.FastParticles:
+						{
                             for (int i = 0; i < _bodies.Length; i++) {
                                 double distance = PseudoRandom.Double(1e6);
                                 double angle    = PseudoRandom.Double(Math.PI * 2);
@@ -294,7 +291,8 @@ namespace NBody {
                         break;
 
                     // Generate massive body demonstration. 
-                    case SystemType.MassiveBody: {
+                    case SystemType.MassiveBody:
+						{
                             _bodies[0] = new Body(Vector.Zero, 1e10);
 
                             Vector location1 = PseudoRandom.Vector(8e3) + new Vector(-3e5, 1e5 + _bodies[0].Radius, 0);
@@ -302,7 +300,8 @@ namespace NBody {
                             Vector velocity1 = new Vector(2e3, 0, 0);
                             _bodies[1] = new Body(location1, mass1, velocity1);
 
-                            for (int i = 2; i < _bodies.Length; i++) {
+                            for (int i = 2; i < _bodies.Length; i++)
+							{
                                 double distance = PseudoRandom.Double(2e5) + _bodies[1].Radius;
                                 double angle    = PseudoRandom.Double(Math.PI * 2);
                                 double vertical = Math.Min(2e8 / distance, 2e4);
@@ -310,9 +309,9 @@ namespace NBody {
                                 double mass     = PseudoRandom.Double(5e5) + 1e5;
                                 double speed    = Math.Sqrt(_bodies[1].Mass * _bodies[1].Mass * G / ((_bodies[1].Mass + mass) * distance));
                                 Vector velocity = Vector.Cross(location, Vector.YAxis).Unit() * speed + velocity1;
-                                location = location.Rotate(0, 0, 0, 1, 1, 1, Math.PI * 0.1);
-                                velocity = velocity.Rotate(0, 0, 0, 1, 1, 1, Math.PI * 0.1);
-                                _bodies[i] = new Body(location, mass, velocity);
+                                location		= location.Rotate(0, 0, 0, 1, 1, 1, Math.PI * 0.1);
+                                velocity		= velocity.Rotate(0, 0, 0, 1, 1, 1, Math.PI * 0.1);
+                                _bodies[i]		= new Body(location, mass, velocity);
                             }
                         }
                         break;
@@ -321,20 +320,22 @@ namespace NBody {
                     case SystemType.OrbitalSystem: {
                             _bodies[0] = new Body(1e10);
 
-                            for (int i = 1; i < _bodies.Length; i++) {
+                            for (int i = 1; i < _bodies.Length; i++) 
+							{
                                 double distance = PseudoRandom.Double(1e6) + _bodies[0].Radius;
                                 double angle    = PseudoRandom.Double(Math.PI * 2);
                                 Vector location = new Vector(Math.Cos(angle) * distance, PseudoRandom.Double(-2e4, 2e4), Math.Sin(angle) * distance);
                                 double mass     = PseudoRandom.Double(1e6) + 3e4;
                                 double speed    = Math.Sqrt(_bodies[0].Mass * _bodies[0].Mass * G / ((_bodies[0].Mass + mass) * distance));
                                 Vector velocity = Vector.Cross(location, Vector.YAxis).Unit() * speed;
-                                _bodies[i] = new Body(location, mass, velocity);
+                                _bodies[i]		= new Body(location, mass, velocity);
                             }
                         }
                         break;
 
                     // Generate binary system. 
-                    case SystemType.BinarySystem: {
+                    case SystemType.BinarySystem: 
+						{
                             double mass1     = PseudoRandom.Double(9e9) + 1e9;
                             double mass2     = PseudoRandom.Double(9e9) + 1e9;
                             double angle0    = PseudoRandom.Double(Math.PI * 2);
@@ -347,10 +348,11 @@ namespace NBody {
                             double speed2    = Math.Sqrt(mass1 * mass1 * G / ((mass1 + mass2) * distance0));
                             Vector velocity1 = Vector.Cross(location1, Vector.YAxis).Unit() * speed1;
                             Vector velocity2 = Vector.Cross(location2, Vector.YAxis).Unit() * speed2;
-                            _bodies[0] = new Body(location1, mass1, velocity1);
-                            _bodies[1] = new Body(location2, mass2, velocity2);
+                            _bodies[0]		 = new Body(location1, mass1, velocity1);
+                            _bodies[1]		 = new Body(location2, mass2, velocity2);
 
-                            for (int i = 2; i < _bodies.Length; i++) {
+                            for (int i = 2; i < _bodies.Length; i++)
+							{
                                 double distance = PseudoRandom.Double(1e6);
                                 double angle    = PseudoRandom.Double(Math.PI * 2);
                                 Vector location = new Vector(Math.Cos(angle) * distance, PseudoRandom.Double(-2e4, 2e4), Math.Sin(angle) * distance);
@@ -364,13 +366,15 @@ namespace NBody {
                         break;
 
                     // Generate planetary system. 
-                    case SystemType.PlanetarySystem: {
-                            _bodies[0] = new Body(1e10);
+                    case SystemType.PlanetarySystem:
+						{
+                            _bodies[0]	= new Body(1e10);
                             int planets = PseudoRandom.Int32(10) + 5;
                             int planetsWithRings = PseudoRandom.Int32(1) + 1;
                             int k = 1;
-                            for (int i = 1; i < planets + 1 && k < _bodies.Length; i++) {
-                                int planetK = k;
+                            for (int i = 1; i < planets + 1 && k < _bodies.Length; i++) 
+							{
+                                int planetK		= k;
                                 double distance = PseudoRandom.Double(2e6) + 1e5 + _bodies[0].Radius;
                                 double angle    = PseudoRandom.Double(Math.PI * 2);
                                 Vector location = new Vector(Math.Cos(angle) * distance, PseudoRandom.Double(-2e4, 2e4), Math.Sin(angle) * distance);
@@ -381,8 +385,10 @@ namespace NBody {
 
                                 // Generate rings.
                                 const int RingParticles = 100;
-                                if (--planetsWithRings >= 0 && k < _bodies.Length - RingParticles) {
-                                    for (int j = 0; j < RingParticles; j++) {
+                                if (--planetsWithRings >= 0 && k < _bodies.Length - RingParticles) 
+								{
+                                    for (int j = 0; j < RingParticles; j++) 
+									{
                                         double ringDistance = PseudoRandom.Double(1e1) + 1e4 + _bodies[planetK].Radius;
                                         double ringAngle    = PseudoRandom.Double(Math.PI * 2);
                                         Vector ringLocation = location + new Vector(Math.Cos(ringAngle) * ringDistance, 0, Math.Sin(ringAngle) * ringDistance);
@@ -396,7 +402,8 @@ namespace NBody {
 
                                 // Generate moons. 
                                 int moons = PseudoRandom.Int32(4);
-                                while (moons-- > 0 && k < _bodies.Length) {
+                                while (moons-- > 0 && k < _bodies.Length) 
+								{
                                     double moonDistance = PseudoRandom.Double(1e4) + 5e3 + _bodies[planetK].Radius;
                                     double moonAngle    = PseudoRandom.Double(Math.PI * 2);
                                     Vector moonLocation = location + new Vector(Math.Cos(moonAngle) * moonDistance, PseudoRandom.Double(-2e3, 2e3), Math.Sin(moonAngle) * moonDistance);
@@ -408,7 +415,8 @@ namespace NBody {
                             }
 
                             // Generate asteroid belt.
-                            while (k < _bodies.Length) {
+                            while (k < _bodies.Length)
+							{
                                 double asteroidDistance = PseudoRandom.Double(4e5) + 1e6;
                                 double asteroidAngle    = PseudoRandom.Double(Math.PI * 2);
                                 Vector asteroidLocation = new Vector(Math.Cos(asteroidAngle) * asteroidDistance, PseudoRandom.Double(-1e3, 1e3), Math.Sin(asteroidAngle) * asteroidDistance);
@@ -421,17 +429,24 @@ namespace NBody {
                         break;
 
                     // Generate distribution test. 
-                    case SystemType.DistributionTest: {
+                    case SystemType.DistributionTest:
+						{
                             Array.Clear(_bodies, 0, _bodies.Length);
                             double distance = 4e4;
                             double mass     = 5e6;
 
                             int side = (int)Math.Pow(_bodies.Length, 1.0 / 3);
                             int k = 0;
-                            for (int a = 0; a < side; a++)
-                                for (int b = 0; b < side; b++)
-                                    for (int c = 0; c < side; c++)
-                                        _bodies[k++] = new Body(distance * (new Vector(a - side / 2, b - side / 2, c - side / 2)), mass);
+							for (int a = 0; a < side; a++)
+							{
+								for (int b = 0; b < side; b++)
+								{
+									for (int c = 0; c < side; c++)
+									{
+										_bodies[k++] = new Body(distance * (new Vector(a - side / 2, b - side / 2, c - side / 2)), mass);
+									}
+								}
+							}
                         }
                         break;
                 }
@@ -444,43 +459,39 @@ namespace NBody {
         /// <param name="point">The starting point for the axis of rotation.</param>
         /// <param name="direction">The direction for the axis of rotation</param>
         /// <param name="angle">The angle to rotate by.</param>
-        public void Rotate(Vector point, Vector direction, double angle) {
-            lock (_bodyLock) 
-                Parallel.ForEach(_bodies, body => {
-                    if (body != null)
-                        body.Rotate(point, direction, angle);
-                });
-        }
-
-        /// <summary>
-        /// Moves the camera in association with the given mouse wheel delta. 
-        /// </summary>
-        /// <param name="delta">The signed number of dents the mouse wheel moved.</param>
-        public void MoveCamera(int delta) {
-            _cameraZVelocity += delta * CameraZAcceleration;
-        }
-
-        /// <summary>
-        /// Resets the camera to its initial position. 
-        /// </summary>
-        public void ResetCamera() {
-            _cameraZ = CameraZDefault;
-            _cameraZVelocity = 0;
+        public void Rotate(Vector point, Vector direction, double angle) 
+		{
+			lock (_bodyLock)
+			{
+				Parallel.ForEach(_bodies, body =>
+				{
+					if (body != null)
+					{
+						body.Rotate(point, direction, angle);
+					}
+				});
+			}
         }
 
         /// <summary>
         /// Draws the bodies in the world. 
         /// </summary>
         /// <param name="g">The graphics surface to draw on.</param>
-        public void Draw(Graphics g) {
-            for (int i = 0; i < _bodies.Length; i++)
-                if (_bodies[i] != null) {
-                    Body body = _bodies[i];
-                    _renderer.FillCircle2D(g, Brushes.White, body.Location, body.Radius);
-                }
+        public void Draw(Graphics g)
+		{
+			for (int i = 0; i < _bodies.Length; i++)
+			{
+				if (_bodies[i] != null)
+				{
+					Body body = _bodies[i];
+					Camera.Renderer.FillCircle2D(g, Brushes.White, body.Location, body.Radius);
+				}
+			}
 
-            if (DrawTree)
-                _tree.Draw(g, _renderer);
+			if (DrawTree)
+			{
+				_tree.Draw(g, Camera.Renderer);
+			}
         }
     }
 }

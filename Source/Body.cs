@@ -2,20 +2,20 @@
 using System.Drawing;
 using Lattice;
 
-namespace NBody {
-
+namespace NBody
+{
     /// <summary>
     /// Represents a massive body in the simulation. 
     /// </summary>
-    class Body {
-
+    public class Body
+	{
         /// <summary>
         /// Returns the radius defined for the given mass value. 
         /// </summary>
         /// <param name="mass">The mass to calculate a radius for.</param>
         /// <returns>The radius defined for the given mass value.</returns>
-        public static double GetRadius(double mass) {
-
+        public static double GetRadius(double mass)
+		{
             // We assume all bodies have the same density so volume is directly 
             // proportion to mass. Then we use the inverse of the equation for the 
             // volume of a sphere to solve for the radius. The end result is arbitrarily 
@@ -47,8 +47,10 @@ namespace NBody {
         /// <summary>
         /// The radius of the body. 
         /// </summary>
-        public double Radius {
-            get {
+        public double Radius
+		{
+            get 
+			{
                 return GetRadius(Mass);
             }
         }
@@ -58,7 +60,8 @@ namespace NBody {
         /// default values of zero. 
         /// </summary>
         /// <param name="mass">The mass of the new body.</param>
-        public Body(double mass) {
+        public Body(double mass) 
+		{
             Mass = mass;
         }
 
@@ -71,7 +74,8 @@ namespace NBody {
         /// <param name="mass">The mass of the new body.</param>
         /// <param name="velocity">The velocity of the new body.</param>
         public Body(Vector location, double mass = 1e6, Vector velocity = new Vector())
-            : this(mass) {
+            : this(mass)
+		{
             Location = location;
             Velocity = velocity;
         }
@@ -80,23 +84,28 @@ namespace NBody {
         /// Updates the properties of the body such as location, velocity, and 
         /// applied acceleration. This method should be invoked at each time step. 
         /// </summary>
-        public void Update() {
+        public void Update()
+		{
             double speed = Velocity.Magnitude();
-            if (speed > World.C) {
+            if (speed > World.C) 
+			{
                 Velocity = World.C * Velocity.Unit();
                 speed = World.C;
             }
 
-            if (speed == 0)
-                Velocity += Acceleration;
-            else {
+			if (speed == 0)
+			{
+				Velocity += Acceleration;
+			}
+			else
+			{
 
-                // Apply relativistic velocity addition. 
-                Vector parallelAcc = Vector.Projection(Acceleration, Velocity);
-                Vector orthogonalAcc = Vector.Rejection(Acceleration, Velocity);
-                double alpha = Math.Sqrt(1 - Math.Pow(speed / World.C, 2));
-                Velocity = (Velocity + parallelAcc + alpha * orthogonalAcc) / (1 + Vector.Dot(Velocity, Acceleration) / (World.C * World.C));
-            }
+				// Apply relativistic velocity addition. 
+				Vector parallelAcc = Vector.Projection(Acceleration, Velocity);
+				Vector orthogonalAcc = Vector.Rejection(Acceleration, Velocity);
+				double alpha = Math.Sqrt(1 - Math.Pow(speed / World.C, 2));
+				Velocity = (Velocity + parallelAcc + alpha * orthogonalAcc) / (1 + Vector.Dot(Velocity, Acceleration) / (World.C * World.C));
+			}
 
             Location += Velocity;
             Acceleration = Vector.Zero;
@@ -108,7 +117,8 @@ namespace NBody {
         /// <param name="point">The starting point for the axis of rotation.</param>
         /// <param name="direction">The direction for the axis of rotation</param>
         /// <param name="angle">The angle to rotate by.</param>
-        public void Rotate(Vector point, Vector direction, double angle) {
+        public void Rotate(Vector point, Vector direction, double angle)
+		{
             Location = Location.Rotate(point, direction, angle);
 
             // To rotate velocity and acceleration we have to adjust for the starting 
